@@ -1,0 +1,78 @@
+/******************************************************************************
+
+                            Online C Compiler.
+                Code, Compile, Run and Debug C program online.
+Write your code in this editor and press "Run" button to compile and execute it.
+
+*******************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int rows, cols;
+    int i, j;
+
+    // ===== Solicitar dimensiones al usuario =====
+    printf("Ingrese numero de filas: ");
+    scanf("%d", &rows);
+    printf("Ingrese numero de columnas: ");
+    scanf("%d", &cols);
+
+    // ===== Reservar memoria dinamica para las matrices =====
+    // Cada matriz es un arreglo de punteros (filas), y cada fila apunta a un arreglo de enteros (columnas)
+    int **A = (int**) malloc(rows * sizeof(int*));
+    int **B = (int**) malloc(rows * sizeof(int*));
+    int **C = (int**) malloc(rows * sizeof(int*));
+
+    for (i = 0; i < rows; i++) {
+        A[i] = (int*) malloc(cols * sizeof(int));
+        B[i] = (int*) malloc(cols * sizeof(int));
+        C[i] = (int*) malloc(cols * sizeof(int));
+    }
+
+    // ===== Llenar la matriz A con input del usuario =====
+    printf("\nIngrese los elementos de la matriz A:\n");
+    for (i = 0; i < rows; i++) {
+        for (j = 0; j < cols; j++) {
+            printf("A[%d][%d] = ", i, j);
+            scanf("%d", (*(A + i) + j)); // *(A+i) apunta a la fila i, +j se mueve j posiciones
+        }
+    }
+
+    // ===== Llenar la matriz B con input del usuario =====
+    printf("\nIngrese los elementos de la matriz B:\n");
+    for (i = 0; i < rows; i++) {
+        for (j = 0; j < cols; j++) {
+            printf("B[%d][%d] = ", i, j);
+            scanf("%d", (*(B + i) + j));
+        }
+    }
+
+    // ===== Calcular C = A + B usando aritmetica de punteros =====
+    for (i = 0; i < rows; i++) {
+        for (j = 0; j < cols; j++) {
+            *(*(C + i) + j) = *(*(A + i) + j) + *(*(B + i) + j);
+        }
+    }
+
+    // ===== Mostrar la matriz resultado C =====
+    printf("\nMatriz resultado C = A + B:\n");
+    for (i = 0; i < rows; i++) {
+        for (j = 0; j < cols; j++) {
+            printf("%4d ", *(*(C + i) + j));
+        }
+        printf("\n");
+    }
+
+    // ===== Liberar memoria dinamica =====
+    for (i = 0; i < rows; i++) {
+        free(A[i]);
+        free(B[i]);
+        free(C[i]);
+    }
+    free(A);
+    free(B);
+    free(C);
+
+    return 0;
+}
