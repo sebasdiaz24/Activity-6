@@ -1,0 +1,90 @@
+/******************************************************************************
+
+                            Online C Compiler.
+                Code, Compile, Run and Debug C program online.
+Write your code in this editor and press "Run" button to compile and execute it.
+
+*******************************************************************************/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+void printSpiral(int **matrix, int R, int C) {
+    int top = 0, bottom = R - 1;
+    int left = 0, right = C - 1;
+
+    while (top <= bottom && left <= right) {
+        // 1) izquierda -> derecha
+        for (int j = left; j <= right; j++)
+            printf("%d ", matrix[top][j]);
+        top++;
+
+        // 2) arriba -> abajo
+        for (int i = top; i <= bottom; i++)
+            printf("%d ", matrix[i][right]);
+        right--;
+
+        // 3) derecha -> izquierda
+        if (top <= bottom) {
+            for (int j = right; j >= left; j--)
+                printf("%d ", matrix[bottom][j]);
+            bottom--;
+        }
+
+        // 4) abajo -> arriba
+        if (left <= right) {
+            for (int i = bottom; i >= top; i--)
+                printf("%d ", matrix[i][left]);
+            left++;
+        }
+    }
+    printf("\n");
+}
+
+int main() {
+    int R, C;
+    printf("Enter rows and columns: ");
+    scanf("%d %d", &R, &C);
+
+    // reservar memoria dinámica
+    int **matrix = (int **)malloc(R * sizeof(int *));
+    for (int i = 0; i < R; i++)
+        matrix[i] = (int *)malloc(C * sizeof(int));
+
+    printf("Enter matrix elements:\n");
+    for (int i = 0; i < R; i++)
+        for (int j = 0; j < C; j++)
+            scanf("%d", &matrix[i][j]);
+
+    // imprimir matriz original
+    printf("\nInput Matrix:\n");
+    for (int i = 0; i < R; i++) {
+        for (int j = 0; j < C; j++) {
+            printf("%4d", matrix[i][j]);
+        }
+        printf("\n");
+    }
+
+    // imprimir en forma espiral
+    printf("\nSpiral Order:\n");
+    printSpiral(matrix, R, C);
+
+    // liberar memoria
+    for (int i = 0; i < R; i++)
+        free(matrix[i]);
+    free(matrix);
+
+    return 0;
+}
+
+Reporte: 
+El algoritmo para imprimir una matriz en forma espiral consiste en recorrer sus elementos por capas, 
+avanzando primero de izquierda a derecha en la fila superior, luego de arriba a abajo en la última columna, 
+después de derecha a izquierda en la fila inferior y finalmente de abajo a arriba en la primera columna, 
+reduciendo los límites en cada ciclo hasta que se recorren todos los elementos. Para controlar este proceso se definen cuatro variables: 
+top (límite superior), bottom (límite inferior), left (columna inicial) y right (columna final), 
+y mientras top sea menor o igual a bottom y left sea menor o igual a right se realiza el recorrido en cuatro fases.
+En cada fase se imprimen los elementos correspondientes y se actualizan los límites para pasar a la siguiente capa de la espiral. 
+De esta manera, todos los elementos se recorren una sola vez, por lo que la complejidad temporal es O(N×M) y la espacial es O(1) sin contar la matriz original. 
+Por ejemplo, para la matriz de 5×4 del enunciado, el recorrido espiral produce la salida 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20, 
+lo que demuestra que la lógica de controlar los bordes y desplazarse capa por capa permite obtener correctamente el orden espiral de cualquier matriz rectangular.
