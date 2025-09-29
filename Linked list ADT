@@ -1,1 +1,193 @@
 
+/******************************************************************************
+
+                            Online C Compiler.
+                Code, Compile, Run and Debug C program online.
+Write your code in this editor and press "Run" button to compile and execute it.
+
+*******************************************************************************/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+typedef struct Node {
+    int data;
+    struct Node *next;
+} Node;
+
+/* a) Create Node */
+Node* create_node(int value) {
+    Node *n = (Node*)malloc(sizeof(Node));
+    if (!n) return NULL;
+    n->data = value;
+    n->next = NULL;
+    return n;
+}
+
+/* b) Display Nodes */
+void display(const Node *head) {
+    if (!head) { printf("(empty)\n"); return; }
+    const Node *cur = head;
+    while (cur) {
+        printf("%d", cur->data);
+        if (cur->next) printf(" -> ");
+        cur = cur->next;
+    }
+    printf("\n");
+}
+
+/* c) Insert at beginning */
+bool insert_begin(Node **head, int value) {
+    Node *n = create_node(value);
+    if (!n) return false;
+    n->next = *head;
+    *head = n;
+    return true;
+}
+
+/* e) Insert at end */
+bool insert_end(Node **head, int value) {
+    Node *n = create_node(value);
+    if (!n) return false;
+    if (*head == NULL) { *head = n; return true; }
+    Node *cur = *head;
+    while (cur->next) cur = cur->next;
+    cur->next = n;
+    return true;
+}
+
+/* d) Insert at specific position (1-based) */
+bool insert_at(Node **head, int pos, int value) {
+    if (pos < 1) return false;
+    if (pos == 1) return insert_begin(head, value);
+    Node *prev = *head;
+    int i = 1;
+    while (prev != NULL && i < pos - 1) {
+        prev = prev->next;
+        i++;
+    }
+    if (prev == NULL) return false; /* pos > length+1 */
+    Node *n = create_node(value);
+    if (!n) return false;
+    n->next = prev->next;
+    prev->next = n;
+    return true;
+}
+
+/* f) Delete at beginning */
+bool delete_begin(Node **head, int *out_value) {
+    if (*head == NULL) return false;
+    Node *tmp = *head;
+    if (out_value) *out_value = tmp->data;
+    *head = tmp->next;
+    free(tmp);
+    return true;
+}
+
+/* g) Delete at end */
+bool delete_end(Node **head, int *out_value) {
+    if (*head == NULL) return false;
+    if ((*head)->next == NULL) {
+        if (out_value) *out_value = (*head)->data;
+        free(*head);
+        *head = NULL;
+        return true;
+    }
+    Node *prev = *head;
+    Node *cur = (*head)->next;
+    while (cur->next != NULL) {
+        prev = cur;
+        cur = cur->next;
+    }
+    if (out_value) *out_value = cur->data;
+    prev->next = NULL;
+    free(cur);
+    return true;
+}
+
+/* h) Delete at position (1-based) */
+bool delete_at(Node **head, int pos, int *out_value) {
+    if (pos < 1 || *head == NULL) return false;
+    if (pos == 1) return delete_begin(head, out_value);
+    Node *prev = *head;
+    int i = 1;
+    while (prev != NULL && i < pos - 1) {
+        prev = prev->next;
+        i++;
+    }
+    if (prev == NULL || prev->next == NULL) return false;
+    Node *target = prev->next;
+    if (out_value) *out_value = target->data;
+    prev->next = target->next;
+    free(target);
+    return true;
+}
+
+/* Utilidad opcional: liberar toda la lista */
+void clear_list(Node **head) {
+    int dummy;
+    while (delete_begin(head, &dummy)) { /* vacía */ }
+}
+
+/* Demo con menú */
+int main(void) {
+    Node *head = NULL;
+    int option, val, pos, out;
+
+    do {
+        printf("\n--- Single Linked List Menu ---\n");
+        printf("1. Insert at beginning\n");
+        printf("2. Insert at end\n");
+        printf("3. Insert at position\n");
+        printf("4. Delete at beginning\n");
+        printf("5. Delete at end\n");
+        printf("6. Delete at position\n");
+        printf("7. Display\n");
+        printf("0. Exit\n");
+        printf("Choose: ");
+        if (scanf("%d", &option) != 1) { /* input inválido */
+            fprintf(stderr, "Invalid input.\n");
+            break;
+        }
+
+        switch (option) {
+            case 1:
+                printf("Value: "); scanf("%d", &val);
+                if (!insert_begin(&head, val)) printf("Error: allocation failed.\n");
+                break;
+            case 2:
+                printf("Value: "); scanf("%d", &val);
+                if (!insert_end(&head, val)) printf("Error: allocation failed.\n");
+                break;
+            case 3:
+                printf("Position (1-based): "); scanf("%d", &pos);
+                printf("Value: "); scanf("%d", &val);
+                if (!insert_at(&head, pos, val)) printf("Error: invalid position or allocation failed.\n");
+                break;
+            case 4:
+                if (delete_begin(&head, &out)) printf("Deleted: %d\n", out);
+                else printf("List is empty.\n");
+                break;
+            case 5:
+                if (delete_end(&head, &out)) printf("Deleted: %d\n", out);
+                else printf("List is empty.\n");
+                break;
+            case 6:
+                printf("Position (1-based): "); scanf("%d", &pos);
+                if (delete_at(&head, pos, &out)) printf("Deleted: %d\n", out);
+                else printf("Error: invalid position or empty list.\n");
+                break;
+            case 7:
+                display(head);
+                break;
+            case 0:
+                break;
+            default:
+                printf("Unknown option.\n");
+        }
+    } while (option != 0);
+
+    clear_list(&head);
+    return 0;
+}
