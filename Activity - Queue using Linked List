@@ -1,0 +1,231 @@
+[Activity - Queue using Linked List.c](https://github.com/user-attachments/files/22643713/Activity.-.Queue.using.Linked.List.c)
+/******************************************************************************
+
+                            Online C Compiler.
+                Code, Compile, Run and Debug C program online.
+Write your code in this editor and press "Run" button to compile and execute it.
+
+*******************************************************************************/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+/* ===== Queue (Linked List) ADT ===== */
+
+typedef struct Node {
+    int data;
+    struct Node *next;
+} Node;
+
+typedef struct {
+    Node *front;  // apunta al primer nodo (dequeue ocurre aquí)
+    Node *rear;   // apunta al último nodo (enqueue ocurre aquí)
+    size_t n;     // tamaño actual de la cola
+} Queue;
+
+/* Crear cola vacía */
+Queue* queue_create(void) {
+    Queue *q = (Queue*)malloc(sizeof(Queue));
+    if (!q) {
+        fprintf(stderr, "Error: sin memoria para crear la cola.\n");
+        exit(EXIT_FAILURE);
+    }
+    q->front = q->rear = NULL;
+    q->n = 0;
+    return q;
+}
+
+/* ¿Está vacía? */
+bool queue_is_empty(const Queue *q) {
+    return q->front == NULL;
+}
+
+/* Tamaño */
+size_t queue_size(const Queue *q) {
+    return q->n;
+}
+
+/* Enqueue: insertar al final (rear) */
+void queue_enqueue(Queue *q, int value) {
+    Node *newNode = (Node*)malloc(sizeof(Node));
+    if (!newNode) {
+        fprintf(stderr, "Error: sin memoria para nuevo nodo.\n");
+        exit(EXIT_FAILURE);
+    }
+    newNode->data = value;
+    newNode->next = NULL;
+
+    if (queue_is_empty(q)) {
+        // Si está vacía, front y rear apuntan al nuevo nodo
+        q->front = q->rear = newNode;
+    } else {
+        // Conectar al final y mover rear
+        q->rear->next = newNode;
+        q->rear = newNode;
+    }
+    q->n++;
+}
+
+/* Dequeue: sacar del frente (front). Devuelve 0 en *ok si está vacía */
+int queue_dequeue(Queue *q, int *ok) {
+    if (queue_is_empty(q)) {
+        if (ok) *ok = 0;
+        return 0;
+    }
+    Node *aux = q->front;
+    int value = aux->data;
+    q->front = q->front->next;
+    if (q->front == NULL) {
+        // Si se vació, rear también debe ser NULL
+        q->rear = NULL;
+    }
+    free(aux);
+    q->n--;
+    if (ok) *ok = 1;
+    return value;
+}
+
+/* Ver frente (sin quitar). Devuelve 0 en *ok si está vacía */
+int queue_peek_front(const Queue *q, int *ok) {
+    if (queue_is_empty(q)) {
+        if (ok) *ok = 0;
+        return 0;
+    }
+    if (ok) *ok = 1;
+    return q->front->data;
+}
+
+/* Ver fondo (sin quitar). Devuelve 0 en *ok si está vacía */
+int queue_peek_rear(const Queue *q, int *ok) {
+    if (queue_is_empty(q)) {
+        if (ok) *ok = 0;
+        return 0;
+    }
+    if (ok) *ok = 1;
+    return q->rear->data;
+}
+
+/* Mostrar cola de front -> rear */
+void queue_show(const Queue *q) {
+    const Node *aux = q->front;
+    printf("[front] ");
+    while (aux) {
+        printf("%d ", aux->data);
+        aux = aux->next;
+    }
+    printf("[rear]\n");
+}
+
+/* Vaciar y liberar memoria */
+void queue_clear(Queue *q) {
+    int dummy_ok;
+    while (!queue_is_empty(q)) {
+        (void)queue_dequeue(q, &dummy_ok);
+    }
+}
+
+void queue_destroy(Queue *q) {
+    if (!q) return;
+    queue_clear(q);
+    free(q);
+}
+
+/* ===== Programa de prueba (lectura desde teclado) =====
+   Menú:
+   1) Enqueue (leer entero)
+   2) Dequeue
+   3) Peek front
+   4) Peek rear
+   5) Size
+   6) Show
+   0) Exit
+*/
+static void print_menu(void) {
+    printf("\n=== MENU QUEUE (Linked List) ===\n");
+    printf("1) Enqueue (insertar al final)\n");
+    printf("2) Dequeue (extraer del frente)\n");
+    printf("3) Peek front\n");
+    printf("4) Peek rear\n");
+    printf("5) Size (tamaño)\n");
+    printf("6) Show (mostrar cola)\n");
+    printf("0) Exit\n");
+    printf("Elige una opción: ");
+}
+
+int main(void) {
+    Queue *q = queue_create();
+    int option, x, ok;
+
+    do {
+        print_menu();
+        if (scanf("%d", &option) != 1) {
+            // limpiar stdin si entrada inválida
+            fprintf(stderr, "Entrada inválida. Saliendo.\n");
+            break;
+        }
+
+        switch (option) {
+            case 1:
+                printf("Ingresa un entero para encolar: ");
+                if (scanf("%d", &x) != 1) {
+                    fprintf(stderr, "Entrada inválida.\n");
+                    // limpiar y continuar
+                    int c;
+                    while ((c = getchar()) != '\n' && c != EOF) {}
+                    break;
+                }
+                queue_enqueue(q, x);
+                printf("OK: %d encolado.\n", x);
+                break;
+
+            case 2: {
+                int val = queue_dequeue(q, &ok);
+                if (!ok) {
+                    printf("La cola está vacía. No se puede hacer dequeue.\n");
+                } else {
+                    printf("Dequeue -> %d\n", val);
+                }
+                break;
+            }
+
+            case 3: {
+                int val = queue_peek_front(q, &ok);
+                if (!ok) {
+                    printf("La cola está vacía.\n");
+                } else {
+                    printf("Front = %d\n", val);
+                }
+                break;
+            }
+
+            case 4: {
+                int val = queue_peek_rear(q, &ok);
+                if (!ok) {
+                    printf("La cola está vacía.\n");
+                } else {
+                    printf("Rear = %d\n", val);
+                }
+                break;
+            }
+
+            case 5:
+                printf("Tamaño actual: %zu\n", queue_size(q));
+                break;
+
+            case 6:
+                queue_show(q);
+                break;
+
+            case 0:
+                printf("Saliendo...\n");
+                break;
+
+            default:
+                printf("Opción no válida.\n");
+        }
+    } while (option != 0);
+
+    queue_destroy(q);
+    return 0;
+}
