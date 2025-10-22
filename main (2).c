@@ -1,0 +1,131 @@
+/******************************************************************************
+
+                            Online C Compiler.
+                Code, Compile, Run and Debug C program online.
+Write your code in this editor and press "Run" button to compile and execute it.
+
+*******************************************************************************/
+/*
+  Grafo: V = {A,B,C,D}
+  E (no dirigido para matriz): (A,B), (A,C), (B,D)
+  E (dirigido para lista):     A->B, A->C, B->D
+
+  Este único programa:
+  1) Construye e imprime la MATRIZ de adyacencia (no dirigida) en orden A,B,C,D.
+  2) Construye e imprime la LISTA de adyacencia (dirigida) en orden A,B,C,D.
+  3) Imprime 2 razones cortas de CUÁNDO elegir matriz vs. lista.
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* ---------- Utilidades comunes ---------- */
+#define N 4                 // Número de vértices: A,B,C,D
+const char* LABELS = "ABCD";
+
+int idx(char v){            // 'A'->0, 'B'->1, ...
+    return v - 'A';
+}
+
+/* ---------- 1) Matriz de adyacencia (no dirigida) ---------- */
+void build_undirected_adj_matrix(int adj[N][N]){
+    memset(adj, 0, sizeof(int)*N*N);
+
+    // Aristas no dirigidas: (A,B), (A,C), (B,D)
+    int u,v;
+    u = idx('A'); v = idx('B'); adj[u][v] = adj[v][u] = 1;
+    u = idx('A'); v = idx('C'); adj[u][v] = adj[v][u] = 1;
+    u = idx('B'); v = idx('D'); adj[u][v] = adj[v][u] = 1;
+}
+
+void print_adj_matrix(int adj[N][N]){
+    printf("MATRIZ DE ADYACENCIA (no dirigida) — orden A,B,C,D\n\n");
+    printf("   ");
+    for(int j=0;j<N;j++) printf(" %c", LABELS[j]);
+    printf("\n");
+    for(int i=0;i<N;i++){
+        printf("%c |", LABELS[i]);
+        for(int j=0;j<N;j++){
+            printf(" %d", adj[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+/* ---------- 2) Lista de adyacencia (dirigida) ---------- */
+typedef struct Node {
+    int v;
+    struct Node* next;
+} Node;
+
+void push_front(Node** head, int v){
+    Node* n = (Node*)malloc(sizeof(Node));
+    n->v = v; n->next = *head; *head = n;
+}
+
+void free_list(Node* head){
+    while(head){ Node* t = head; head = head->next; free(t); }
+}
+
+void build_directed_adj_list(Node* adj[N]){
+    for(int i=0;i<N;i++) adj[i] = NULL;
+
+    // Aristas dirigidas: A->B, A->C, B->D
+    push_front(&adj[idx('A')], idx('B'));
+    push_front(&adj[idx('A')], idx('C'));
+    push_front(&adj[idx('B')], idx('D'));
+}
+
+void print_adj_list(Node* adj[N]){
+    printf("LISTA DE ADYACENCIA (dirigida) — orden A,B,C,D\n\n");
+    for(int u=0; u<N; u++){
+        printf("%c: ", LABELS[u]);
+        Node* p = adj[u];
+        if(!p){ printf("(vacia)"); }
+        while(p){
+            printf("%c", LABELS[p->v]);
+            if(p->next) printf(", ");
+            p = p->next;
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+/* ---------- 3) Razones: Matriz vs. Lista ---------- */
+void print_when_to_pick_each(){
+    printf("¿CUÁNDO ELEGIR CADA REPRESENTACIÓN?\n");
+    printf("- Matriz de adyacencia:\n");
+    printf("  1) Necesitas consultar en O(1) si existe arista u-v.\n");
+    printf("  2) El grafo es denso (muchas aristas, cercano a n^2).\n");
+    printf("- Lista de adyacencia:\n");
+    printf("  1) El grafo es disperso (pocas aristas), ahorra memoria.\n");
+    printf("  2) Vas a iterar vecinos con frecuencia (BFS/DFS) en O(grado).\n");
+}
+
+int main(void){
+    /* 1) Matriz no dirigida */
+    int adjM[N][N];
+    build_undirected_adj_matrix(adjM);
+    print_adj_matrix(adjM);
+
+    /* 2) Lista dirigida */
+    Node* adjL[N];
+    build_directed_adj_list(adjL);
+    print_adj_list(adjL);
+
+    /* 3) Razones de elección */
+    print_when_to_pick_each();
+
+    /* liberar memoria de la lista */
+    for(int i=0;i<N;i++) free_list(adjL[i]);
+
+    return 0;
+}
+
+/*
+Compilar y ejecutar:
+    gcc -O2 grafo.c -o grafo && ./grafo
+*/
