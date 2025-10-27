@@ -1,0 +1,84 @@
+[main (3).c](https://github.com/user-attachments/files/23167690/main.3.c)
+/******************************************************************************
+
+                            Online C Compiler.
+                Code, Compile, Run and Debug C program online.
+Write your code in this editor and press "Run" button to compile and execute it.
+
+*******************************************************************************/
+
+#include <stdio.h>
+
+#define MAX_ELEMENTS 100  // capacidad máxima del arreglo
+
+// Definición de un árbol binario almacenado en arreglo
+typedef struct {
+    char nodes[MAX_ELEMENTS]; // arreglo que guarda los nodos
+    int numElements;          // cuántos nodos tiene el árbol
+} ArrayBinaryTree;
+
+void printTree(ArrayBinaryTree *tree) {
+    printf("Contenido del arreglo del árbol:\n");
+    for (int i = 0; i < tree->numElements; i++) {
+        printf("Index %d -> %c\n", i, tree->nodes[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+
+    // ============================
+    // Inciso (a)
+    // Árbol completo (complete binary tree) tal como en la figura
+    // ============================
+    ArrayBinaryTree tree;
+
+    tree.nodes[0] = 'G'; // raíz
+    tree.nodes[1] = 'D'; // hijo izq de G
+    tree.nodes[2] = 'I'; // hijo der de G
+    tree.nodes[3] = 'B'; // hijo izq de D
+    tree.nodes[4] = 'F'; // hijo der de D
+    tree.nodes[5] = 'H'; // hijo izq de I
+    tree.nodes[6] = 'J'; // hijo der de I
+    tree.nodes[7] = 'A'; // hijo izq de B
+    tree.nodes[8] = 'C'; // hijo der de B
+    tree.nodes[9] = 'E'; // hijo izq de F
+    // Nota: F no tiene hijo derecho en la figura original
+
+    tree.numElements = 10;
+
+    printf("Árbol original (completo):\n");
+    printTree(&tree);
+
+
+    // ============================
+    // Inciso (b)
+    // Árbol lleno (full binary tree)
+    // Agregamos el hijo derecho que le falta a F
+    // ============================
+    ArrayBinaryTree fullTree;
+
+    fullTree.nodes[0]  = 'G';
+    fullTree.nodes[1]  = 'D';
+    fullTree.nodes[2]  = 'I';
+    fullTree.nodes[3]  = 'B';
+    fullTree.nodes[4]  = 'F';
+    fullTree.nodes[5]  = 'H';
+    fullTree.nodes[6]  = 'J';
+    fullTree.nodes[7]  = 'A';
+    fullTree.nodes[8]  = 'C';
+    fullTree.nodes[9]  = 'E'; // hijo izq de F
+
+    // Agregamos el hijo derecho faltante de F:
+    // F está en índice 4
+    // hijo izquierdo = 2*4 + 1 = 9  -> 'E'
+    // hijo derecho   = 2*4 + 2 = 10 -> nuevo nodo
+    fullTree.nodes[10] = 'K'; // nuevo nodo para que F tenga dos hijos
+
+    fullTree.numElements = 11;
+
+    printf("Árbol lleno (full binary tree), después de agregar hijo derecho de F:\n");
+    printTree(&fullTree);
+
+    return 0;
+}
