@@ -1,0 +1,185 @@
+[main (4).c](https://github.com/user-attachments/files/23167832/main.4.c)
+/******************************************************************************
+
+                            Online C Compiler.
+                Code, Compile, Run and Debug C program online.
+Write your code in this editor and press "Run" button to compile and execute it.
+
+*******************************************************************************/
+
+#include <stdio.h>
+
+#define HEAP_MAX 100
+
+// Heap global
+int heap[HEAP_MAX];
+int heapSize = 0;
+
+// Prototipos
+void insert(int item);
+void reHeapUp(int i);
+int removeMax(void);
+void reHeapDown(int i);
+void showHeap(void);
+void showRelations(void);
+
+// Inserta un elemento en el Max-Heap
+void insert(int item) {
+    if (heapSize >= HEAP_MAX) {
+        printf("Error: heap lleno, no se puede insertar %d\n", item);
+        return;
+    }
+
+    // Insertar al final
+    heap[heapSize] = item;
+
+    // Reacomodar hacia arriba (heapify-up)
+    reHeapUp(heapSize);
+
+    // Aumentar tamaño
+    heapSize++;
+
+    // Mostrar heap después de insertar
+    printf("Después de insertar %d:\n", item);
+    showHeap();
+}
+
+// Sube el elemento en posición i hasta restaurar la propiedad de heap máximo
+void reHeapUp(int i) {
+    int parent;
+    int temp;
+
+    while (i > 0) {
+        parent = (i - 1) / 2; // índice del padre
+
+        if (heap[i] > heap[parent]) {
+            // swap heap[i] y heap[parent]
+            temp = heap[i];
+            heap[i] = heap[parent];
+            heap[parent] = temp;
+
+            i = parent; // seguir subiendo
+        } else {
+            break; // ya está en buen lugar
+        }
+    }
+}
+
+// Elimina y regresa el máximo (raíz del heap)
+int removeMax(void) {
+    if (heapSize == 0) {
+        printf("Error: heap vacío, no se puede hacer removeMax\n");
+        return -1; // valor centinela
+    }
+
+    int maxValue = heap[0];
+
+    // Mover el último elemento a la raíz
+    heap[0] = heap[heapSize - 1];
+    heapSize--;
+
+    // Reacomodar hacia abajo (heapify-down)
+    reHeapDown(0);
+
+    return maxValue;
+}
+
+// Baja el elemento en índice i hasta restaurar la propiedad del heap máximo
+void reHeapDown(int i) {
+    int leftChild, rightChild, largerChild;
+    int temp;
+
+    while (1) {
+        leftChild = 2 * i + 1;
+        rightChild = 2 * i + 2;
+        largerChild = i;
+
+        // Comparar con hijo izquierdo
+        if (leftChild < heapSize && heap[leftChild] > heap[largerChild]) {
+            largerChild = leftChild;
+        }
+
+        // Comparar con hijo derecho
+        if (rightChild < heapSize && heap[rightChild] > heap[largerChild]) {
+            largerChild = rightChild;
+        }
+
+        // Si el más grande no es el padre, intercambiamos
+        if (largerChild != i) {
+            temp = heap[i];
+            heap[i] = heap[largerChild];
+            heap[largerChild] = temp;
+            i = largerChild; // seguimos hacia abajo
+        } else {
+            break; // ya quedó acomodado
+        }
+    }
+}
+
+// Imprime el heap como arreglo
+void showHeap(void) {
+    printf("Heap (size=%d): [ ", heapSize);
+    for (int i = 0; i < heapSize; i++) {
+        printf("%d ", heap[i]);
+    }
+    printf("]\n\n");
+}
+
+// Muestra cada nodo junto con sus hijos (por índice)
+void showRelations(void) {
+    printf("Relaciones padre -> hijos (usando índices de arreglo):\n");
+    for (int i = 0; i < heapSize; i++) {
+        int left = 2 * i + 1;
+        int right = 2 * i + 2;
+
+        printf("Nodo i=%d (valor=%d): ", i, heap[i]);
+
+        if (left < heapSize) {
+            printf("left i=%d (valor=%d), ", left, heap[left]);
+        } else {
+            printf("left i=∅, ");
+        }
+
+        if (right < heapSize) {
+            printf("right i=%d (valor=%d)", right, heap[right]);
+        } else {
+            printf("right i=∅");
+        }
+
+        printf("\n");
+    }
+    printf("\n");
+}
+
+// Programa de prueba
+int main(void) {
+
+    // -------- Parte 1: Inserciones --------
+    // Puedes cambiar esta lista por lo que pida tu profe
+    int datosAInsertar[] = {40, 15, 30, 55, 10, 90, 25, 60};
+    int nDatos = sizeof(datosAInsertar) / sizeof(datosAInsertar[0]);
+
+    for (int i = 0; i < nDatos; i++) {
+        insert(datosAInsertar[i]);
+    }
+
+    // Mostrar mapeo arreglo ↔ árbol binario
+    printf("Estructura del heap (padre e hijos):\n");
+    showRelations();
+
+    // -------- Parte 2: Eliminaciones --------
+    // K = cuántas veces quitamos el máximo
+    int K = 3;
+
+    printf("Ahora removemos el máximo %d veces:\n\n", K);
+
+    for (int i = 0; i < K; i++) {
+        int maxVal = removeMax();
+        printf("removeMax() -> %d\n", maxVal);
+        printf("Heap después de removeMax #%d:\n", i + 1);
+        showHeap();
+        showRelations();
+    }
+
+    return 0;
+}
