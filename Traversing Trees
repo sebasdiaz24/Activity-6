@@ -1,0 +1,92 @@
+[main (5).c](https://github.com/user-attachments/files/23305738/main.5.c)
+/******************************************************************************
+
+                            Online C Compiler.
+                Code, Compile, Run and Debug C program online.
+Write your code in this editor and press "Run" button to compile and execute it.
+
+*******************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+
+/* ----- Definición del nodo ----- */
+typedef struct Node {
+    int data;
+    struct Node *left;
+    struct Node *right;
+} Node;
+
+/* ----- Utilidades ----- */
+Node* createNode(int value) {
+    Node* n = (Node*)malloc(sizeof(Node));
+    if (!n) {
+        fprintf(stderr, "Error: no se pudo asignar memoria.\n");
+        exit(EXIT_FAILURE);
+    }
+    n->data = value;
+    n->left = n->right = NULL;
+    return n;
+}
+
+void freeTree(Node* root) {
+    if (!root) return;
+    freeTree(root->left);
+    freeTree(root->right);
+    free(root);
+}
+
+/* ----- Recorridos (DFS) ----- */
+void preorder(Node* root) {          // Root, Left, Right
+    if (!root) return;
+    printf("%d ", root->data);
+    preorder(root->left);
+    preorder(root->right);
+}
+
+void inorder(Node* root) {           // Left, Root, Right
+    if (!root) return;
+    inorder(root->left);
+    printf("%d ", root->data);
+    inorder(root->right);
+}
+
+void postorder(Node* root) {         // Left, Right, Root
+    if (!root) return;
+    postorder(root->left);
+    postorder(root->right);
+    printf("%d ", root->data);
+}
+
+int main(void) {
+    /* ----- Construcción manual de un árbol con ≥ 5 nodos ----- 
+           Ejemplo:
+                   10
+                 /    \
+                5      15
+               / \       \
+              3   7       18
+    */
+    Node* root = createNode(10);
+    root->left = createNode(5);
+    root->right = createNode(15);
+    root->left->left = createNode(3);
+    root->left->right = createNode(7);
+    root->right->right = createNode(18); // 6 nodos en total
+
+    /* ----- Impresiones ----- */
+    printf("Pre-order (Root, Left, Right): ");
+    preorder(root);
+    printf("\n");
+
+    printf("In-order (Left, Root, Right):  ");
+    inorder(root);
+    printf("\n");
+
+    printf("Post-order (Left, Right, Root): ");
+    postorder(root);
+    printf("\n");
+
+    /* ----- Liberar memoria ----- */
+    freeTree(root);
+    return 0;
+}
